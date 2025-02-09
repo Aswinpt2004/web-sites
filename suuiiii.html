@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Challenge</title>
+    <style>
+        body {
+            background: #000;
+            color: white;
+            font-family: Arial, sans-serif;
+            text-align: center;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            overflow: hidden;
+            margin: 0;
+            position: relative;
+        }
+        h1 {
+            font-size: 2.5rem;
+            animation: glow 1.5s infinite alternate;
+            z-index: 2;
+        }
+        @keyframes glow {
+            from { text-shadow: 3px 3px 10px rgba(255, 255, 255, 0.8); }
+            to { text-shadow: 5px 5px 20px rgba(255, 255, 255, 1); }
+        }
+        .buttons {
+            display: flex;
+            gap: 20px;
+            position: relative;
+            z-index: 2;
+        }
+        .buttons button {
+            padding: 15px 30px;
+            font-size: 1.2rem;
+            border: none;
+            cursor: pointer;
+            border-radius: 20px;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        .yes { background-color: #ff1493; color: white; }
+        .yes:hover { background-color: #ff69b4; }
+        .no {
+            background-color: #0000ff;
+            color: white;
+            position: relative;
+            transition: transform 0.3s ease;
+        }
+        .cat-img { 
+            width: 200px; 
+            height: 200px;
+            object-fit: cover;
+            margin-top: 20px; 
+            border-radius: 15px;
+            z-index: 2;
+        }
+        .star {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle 1.5s infinite;
+            pointer-events: none;
+        }
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <div class="star-field" id="star-field"></div>
+    <h1 id="text">Will you go out with me?</h1>
+    <div class="buttons" id="button-container">
+        <button class="yes" onclick="nextScreen('yes')">Yes</button>
+        <button class="no" id="no-btn" onmouseover="moveButton(this)">No</button>
+    </div>
+    <img id="cat-img" alt="Funny Cat" class="cat-img">
+
+    <script>
+        function createStars() {
+            const starField = document.getElementById('star-field');
+            for (let i = 100; i--;) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.style.left = `${Math.random() * 100}%`;
+                star.style.top = `${Math.random() * 100}%`;
+                star.style.width = `${Math.random() * 3}px`;
+                star.style.height = star.style.width;
+                star.style.animationDelay = `${Math.random() * 1.5}s`;
+                starField.appendChild(star);
+            }
+        }
+        createStars();
+
+        function moveButton(btn) {
+            let x = (Math.random() * 200) ; // Slightly larger movement (±50px)
+            let y = (Math.random() * 200) ;
+            btn.style.transform = `translate(${x}px, ${y}px)`;
+        }
+
+        const screens = [
+            { text: "Really? Think again!", buttons: ["Absolutely Yes!", "Hmm..."], cat: "cat?type=cute" },
+            { text: "I'll make it worth your while!", buttons: ["Okay Yes!", "Not sure"], cat: "cat?type=funny" },
+            { text: "Final chance!", buttons: ["YES!", "Maybe"], cat: "cat/says/🌹?color=red" }
+        ];
+
+        let currentScreen = -1;
+
+        function getRandomParam() {
+            return `&random=${Math.random().toString(36).substr(2, 9)}`;
+        }
+
+        function nextScreen(choice) {
+            if (currentScreen < screens.length - 1) {
+                currentScreen++;
+                const screen = screens[currentScreen];
+
+                document.getElementById("text").innerText = screen.text;
+                document.getElementById("cat-img").src =
+                    `https://cataas.com/${screen.cat}${getRandomParam()}`;
+
+                const container = document.getElementById("button-container");
+                container.innerHTML = '';
+
+                screen.buttons.forEach((btnText, index) => {
+                    const btn = document.createElement("button");
+                    btn.className = index === 0 ? "yes" : "no";
+                    btn.textContent = btnText;
+
+                    if (index === 0) {
+                        btn.onclick = () => {
+                            if (currentScreen === screens.length - 1) {
+                                showFinalMessage();
+                            } else {
+                                nextScreen(btnText);
+                            }
+                        };
+                    } else {
+                        btn.onmouseover = () => moveButton(btn);
+                    }
+
+                    container.appendChild(btn);
+                });
+            }
+        }
+
+        function showFinalMessage() {
+            document.getElementById("text").innerHTML = "YAY! 🎉<br>Looking forward to our date!";
+            document.getElementById("button-container").innerHTML = "";
+            document.getElementById("cat-img").src =
+                `https://cataas.com/cat/says/I%20❤️%20You?${getRandomParam()}`;
+        }
+
+        document.getElementById('cat-img').src =
+            `https://cataas.com/cat/gif?${getRandomParam()}`;
+    </script>
+</body>
+</html>
